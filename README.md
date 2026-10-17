@@ -137,40 +137,86 @@ Arduino-Ultrasonic-Radar/
 
 ---
 
-## ⚡ Quick Start Guide
+## ⚡ Quick Start Guide (How to Run & Test on Your Laptop)
 
 ### Step 1: Upload Firmware to Arduino
 
-1. Connect your Arduino UNO or Nano to your PC via USB cable.
+1. Connect your Arduino UNO or Nano to your laptop/PC via USB cable.
 2. Open the [Arduino IDE](https://www.arduino.cc/en/software).
-3. Open [`arduino/arduino_radar/arduino_radar.ino`](arduino/arduino_radar/arduino_radar.ino).
-4. Select your board under **Tools → Board** (e.g. *Arduino Uno* or *Arduino Nano*).
-5. Select the appropriate **Tools → Port** (e.g. `COM3` on Windows).
-6. Click **Upload** (Ctrl + U).
+3. Open the sketch file: [`arduino/arduino_radar/arduino_radar.ino`](arduino/arduino_radar/arduino_radar.ino).
+4. Verify your wiring pins at the top of the file:
+   ```cpp
+   const int PIN_TRIG   = 9;   // HC-SR04 Trigger (Set to 9, or 3 if custom wired)
+   const int PIN_ECHO   = 10;  // HC-SR04 Echo    (Set to 10, or 5 if custom wired)
+   const int PIN_SERVO  = 6;   // SG90 Servo PWM signal (D6)
+   const int PIN_BUZZER = 11;  // Piezo Buzzer positive (D11)
+   ```
+5. Select your board under **Tools → Board** (e.g. *Arduino Uno* or *Arduino Nano*).
+6. Select your COM Port under **Tools → Port** (e.g. `COM3`, `COM4`, etc.).
+7. Click **Upload** (Ctrl + U) and wait for *"Done uploading"*.
+8. ⚠️ **Important:** Close the Arduino Serial Monitor window before proceeding to Step 2 (otherwise the browser cannot access the port).
 
-### Step 2: Run the Web Dashboard
+---
 
-Because modern browsers enforce security permissions for the **Web Serial API**, the dashboard must be served from `http://localhost` (or `https://`):
+### Step 2: Start the Web Dashboard Locally
 
-Run a local server from the project directory:
+> 💡 **Why a local server?** Modern Chromium browsers (**Google Chrome** and **Microsoft Edge**) require a secure origin (`localhost` or `127.0.0.1`) to grant Web Serial API permissions for hardware USB access.
 
+Choose any of the following 3 easy methods to start the local server:
+
+#### Method A: Using Python (Recommended — No installation needed if Python is installed)
+Open **PowerShell** or **Command Prompt** (CMD) and run:
 ```bash
-# Using Python built-in server (recommended)
+# Navigate to the dashboard directory
 cd dashboard
+
+# Start the local HTTP server on port 8080
 python -m http.server 8080
 ```
+Then open your browser and navigate to:
+👉 **[http://localhost:8080](http://localhost:8080)**
 
-Now open **Google Chrome** or **Microsoft Edge** and navigate to:
+#### Method B: Using VS Code (Live Server Extension)
+1. Open the project folder in **VS Code**.
+2. Right-click on [`dashboard/index.html`](dashboard/index.html).
+3. Click **"Open with Live Server"**.
+4. Your browser will automatically launch at `http://127.0.0.1:5500`.
+
+#### Method C: Using Node.js
+```bash
+cd dashboard
+npx serve -l 8080
 ```
-http://localhost:8080
-```
+Then visit **[http://localhost:8080](http://localhost:8080)**.
 
-### Step 3: Connect & Scan
+---
 
-1. On the web dashboard, click **🔌 Connect Arduino**.
-2. A browser permission popup will appear — select your Arduino COM port and click **Connect**.
-3. Click **▶ Start Scan**.
-4. The SG90 servo will begin sweeping from `0°` to `180°` and back. Real-time targets detected by the HC-SR04 sensor will immediately appear on the radar HUD!
+### Step 3: Connect & Test the Radar
+
+#### 🧪 Option 1: Instant Offline Demo Test (Without Hardware)
+Want to test the radar animations and features immediately without plugging in an Arduino?
+1. Open **[http://localhost:8080](http://localhost:8080)** in Chrome or Edge.
+2. Without clicking connect, simply click **`▶ Start Scan`**.
+3. The dashboard will run in **Simulated Demo Mode**:
+   * The radar beam will sweep from `0°` to `180°` and bounce back.
+   * Virtual objects at **48° (22 cm)**, **88° (115 cm)**, and **128° (62 cm)** will be detected.
+   * Try moving the **Detection Threshold Slider** from 30 cm to 120 cm to reveal distant targets!
+
+#### 🔌 Option 2: Live Hardware Connection (With Arduino)
+1. Ensure your Arduino is plugged into your laptop via USB.
+2. Open **[http://localhost:8080](http://localhost:8080)** in **Google Chrome** or **Microsoft Edge**.
+3. Click the green **`🔌 Connect Arduino`** button on the top-left card.
+4. A browser permission popup will appear:
+   * Select your Arduino device from the list (e.g. `USB-SERIAL CH340` or `Arduino Uno (COMx)`).
+   * Click **Connect**.
+5. Once connected:
+   * The top status pill will turn green: **`● Connected`**.
+   * Data Source will switch to: **`LIVE (Arduino)`**.
+6. Click **`▶ Start Scan`**:
+   * The SG90 servo motor will physically rotate from **0° to 180°**.
+   * When an obstacle comes in front of the HC-SR04 sensor within your threshold, a **red glowing target dot** will appear on the canvas radar HUD, and the buzzer will sound!
+   * Live angle and distance will update on the right-hand panel in real time.
+7. To pause scanning at any moment, click **`■ Stop Scan`**, or click **`⏏ Disconnect`** to release the USB port cleanly.
 
 ---
 
