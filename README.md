@@ -12,11 +12,18 @@ No third-party desktop runtime (such as Processing or Python serial bridges) is 
 
 ---
 
-## 📸 Hardware Setup & Working Prototype
+## 📸 Visual Showcase & Working Prototype
 
+### 🖥️ Sci-Fi Web Radar Dashboard
+<div align="center">
+  <img src="assets/dashboard.png" alt="Arduino Ultrasonic Radar Dashboard UI" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,255,65,0.25);" />
+  <p><em>Real-time military HUD web dashboard: 180° sweep line, calibrated distance rings, obstacle detection blips, live angle/distance telemetry, and control deck.</em></p>
+</div>
+
+### 🔌 Physical Hardware Assembly
 <div align="center">
   <img src="assets/hardware_setup.jpeg" alt="Arduino Ultrasonic Radar Hardware Setup" width="600" style="border-radius: 12px; box-shadow: 0 4px 16px rgba(0,255,65,0.2);" />
-  <p><em>Real physical prototype: Arduino UNO R3, HC-SR04 mounted on SG90 servo motor horn, and piezo buzzer.</em></p>
+  <p><em>Physical prototype: Arduino UNO R3, HC-SR04 ultrasonic sensor mounted on SG90 servo horn, and piezo buzzer alarm.</em></p>
 </div>
 
 > 📹 **Live Demonstration Video:** Check out the working demonstration video in [`assets/radar_demo.mp4`](assets/radar_demo.mp4) showing real-time 180° sweeping and obstacle detection!
@@ -110,7 +117,8 @@ All components share a **common ground rail** on the breadboard.
 
 ```plaintext
 Arduino-Ultrasonic-Radar/
-├── assets/                          # Project media and hardware showcase
+├── assets/                          # Project media and visual assets
+│   ├── dashboard.png                # High-resolution screenshot of web radar dashboard
 │   ├── hardware_setup.jpeg          # Photo of the physical Arduino setup
 │   └── radar_demo.mp4               # Video demo of the 180° sweep in action
 ├── arduino/                         # Microcontroller firmware
