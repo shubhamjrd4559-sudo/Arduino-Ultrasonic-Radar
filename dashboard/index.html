@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arduino Ultrasonic Radar — ECE Project</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       TOP HEADER BAR
+  ═══════════════════════════════════════════ -->
+  <header class="top-bar">
+    <div class="top-bar__left">
+      <span class="top-bar__icon">📡</span>
+      <div>
+        <span class="top-bar__title">ULTRASONIC RADAR SYSTEM</span>
+        <span class="top-bar__subtitle">Arduino UNO R3 · HC-SR04 · SG90 Servo</span>
+      </div>
+    </div>
+
+    <div class="top-bar__center">
+      <span class="demo-badge" id="demoBadge">⚠ DEMO MODE — Simulated Data</span>
+    </div>
+
+    <div class="top-bar__right">
+      <div class="status-pill" id="connectionPill">
+        <span class="status-pill__dot" id="connectionDot"></span>
+        <span class="status-pill__label" id="connectionLabel">Disconnected</span>
+      </div>
+      <div class="status-pill" id="buzzerPill">
+        <span class="status-pill__dot buzzer-dot" id="buzzerDot"></span>
+        <span class="status-pill__label" id="buzzerLabel">Buzzer: OFF</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN LAYOUT
+  ═══════════════════════════════════════════ -->
+  <main class="layout">
+
+    <!-- ─── LEFT PANEL ─── -->
+    <aside class="panel panel--left">
+
+      <section class="card">
+        <h3 class="card__title">ARDUINO CONNECTION</h3>
+        <div class="card__body">
+          <button class="btn btn--green" id="btnConnect">🔌 Connect Arduino</button>
+          <button class="btn btn--red"   id="btnDisconnect" disabled>⏏ Disconnect</button>
+          <p class="hint">Requires Chrome/Edge + HTTPS or localhost.<br>Web Serial API enabled.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3 class="card__title">SCAN CONTROL</h3>
+        <div class="card__body">
+          <button class="btn btn--green" id="btnStart">▶ Start Scan</button>
+          <button class="btn btn--orange" id="btnStop" disabled>■ Stop Scan</button>
+          <button class="btn btn--gray"  id="btnClear">🗑 Clear Radar</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3 class="card__title">BUZZER CONTROL</h3>
+        <div class="card__body">
+          <button class="btn btn--orange" id="btnMute">🔇 Mute Buzzer</button>
+          <div class="toggle-row">
+            <span class="toggle-label">Auto-buzz on detect</span>
+            <label class="toggle">
+              <input type="checkbox" id="autoBuzz" checked />
+              <span class="toggle__slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3 class="card__title">DETECTION THRESHOLD</h3>
+        <div class="card__body">
+          <div class="slider-value-row">
+            <span class="slider-label">Max Range:</span>
+            <span class="slider-value" id="thresholdDisplay">30 cm</span>
+          </div>
+          <input
+            type="range"
+            class="slider"
+            id="thresholdSlider"
+            min="5"
+            max="200"
+            value="30"
+            step="5"
+          />
+          <div class="slider-ticks">
+            <span>5 cm</span>
+            <span>100 cm</span>
+            <span>200 cm</span>
+          </div>
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- ─── CENTER RADAR ─── -->
+    <section class="radar-section">
+      <div class="radar-overlay-label">RADAR DISPLAY</div>
+      <div class="radar-wrapper">
+        <canvas id="radarCanvas"></canvas>
+      </div>
+      <!-- Timestamp -->
+      <div class="radar-timestamp" id="radarTimestamp">--:--:-- --</div>
+    </section>
+
+    <!-- ─── RIGHT PANEL ─── -->
+    <aside class="panel panel--right">
+
+      <section class="card card--highlight">
+        <h3 class="card__title">LIVE READINGS</h3>
+        <div class="card__body readings-grid">
+          <div class="reading-block">
+            <span class="reading-block__label">ANGLE</span>
+            <span class="reading-block__value" id="readAngle">---</span>
+            <span class="reading-block__unit">°</span>
+          </div>
+          <div class="reading-block">
+            <span class="reading-block__label">DISTANCE</span>
+            <span class="reading-block__value" id="readDistance">---</span>
+            <span class="reading-block__unit">cm</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3 class="card__title">DETECTION STATUS</h3>
+        <div class="card__body">
+          <div class="detection-status" id="detectionStatus">
+            <span class="detection-status__icon" id="detIcon">⬤</span>
+            <span class="detection-status__text" id="detText">STANDBY</span>
+          </div>
+          <div class="stat-row"><span>Detections:</span><span id="detCount">0</span></div>
+          <div class="stat-row"><span>Closest:</span><span id="closestDist">--- cm</span></div>
+          <div class="stat-row"><span>Last Angle:</span><span id="lastAngle">---°</span></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3 class="card__title">SCAN STATISTICS</h3>
+        <div class="card__body">
+          <div class="stat-row"><span>Scan Mode:</span><span id="scanMode">Idle</span></div>
+          <div class="stat-row"><span>Sweep Speed:</span><span id="sweepSpeed">2°/step</span></div>
+          <div class="stat-row"><span>Data Source:</span><span id="dataSource" class="demo-text">DEMO (Simulated)</span></div>
+          <div class="stat-row"><span>Uptime:</span><span id="uptime">00:00:00</span></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3 class="card__title">CONSOLE LOG</h3>
+        <div class="card__body">
+          <div class="console-box" id="consoleBox">
+            <p class="console-line console-line--info">[SYSTEM] Dashboard initialized.</p>
+            <p class="console-line console-line--warn">[DEMO] Running in simulation mode.</p>
+          </div>
+          <button class="btn btn--gray btn--sm" id="btnClearLog">Clear Log</button>
+        </div>
+      </section>
+
+    </aside>
+  </main>
+
+  <!-- ═══════════════════════════════════════════
+       BOTTOM STATUS BAR
+  ═══════════════════════════════════════════ -->
+  <footer class="bottom-bar">
+    <span id="footerStatus">System ready — Connect Arduino or run in Demo Mode.</span>
+    <span>Arduino Ultrasonic Radar · ECE Project · v1.0</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
